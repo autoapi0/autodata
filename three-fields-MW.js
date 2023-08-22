@@ -1,58 +1,70 @@
-            $(document).ready(async () => {
-              let res = await fetch(
-                "https://cdn.jsdelivr.net/gh/autoapi0/autodata@main/scrape_data.json"
-              );
+document.addEventListener("DOMContentLoaded", async () => {
+  let res = await fetch(
+    "https://cdn.jsdelivr.net/gh/autoapi0/autodata@main/scrape_data.json"
+  );
+  let jsonData = await res.json();
+  console.log(jsonData);
 
-              $("#year").change(function () {
-                $(".focused").removeClass("focused");
-                $(".focused-input").removeClass("focused-input");
-                let selectedYear = $("#year").val();
-                let makeOptions = jsonData[selectedYear];
-
-                $("#make").removeAttr("disabled");
-                $("#make").attr("aria-disabled", "false");
-
-                $("#model").removeAttr("disabled");
-                $("#model").attr("aria-disabled", "false");
-
-                $("#make").empty();
-                $("#model").empty();
-                $("#modelSelect").empty();
-
-                $("#make").append('<option value="selectMake"></option>');
-                $("#model").append('<option value="selectModel"></option>');
-
-                for (let make in makeOptions) {
-                  if (makeOptions.hasOwnProperty(make)) {
-                    $("#make").append(`<option value=${make}>${make}</option>`);
-                  }
-                }
-              });
-
-              $("#make").change(function () {
-                $("#modelSelect.focused").removeClass("focused");
-                $("#model.focused-input").removeClass("focused-input");
-                let selectedYear = $("#year").val();
-                let selectedMake = $(this).val();
-                let modelOptions = jsonData[selectedYear][selectedMake];
-
-                $("#model").empty();
-                $("#modelSelect").empty();
-
-                $("#model").append('<option value="selectModel"></option>');
-
-                modelOptions.forEach((modelObj) => {
-                  $("#model").append(
-                    `<option value=${modelObj.value}>${modelObj.text}</option>`
-                  );
-                });
-              });
-
-              let jsonData = await res.json();
-              console.log(jsonData);
-            });
-            $(".re_input").click(function () {
-              $(this).addClass("selected");
-              let lab = $(this).children("label").addClass("focused");
-              let fi = $(this).children("select").addClass("focused-input");
-            });
+  const yearSelect = document.getElementById("year");
+  const makeSelect = document.getElementById("make");
+  const modelSelect = document.getElementById("model");
+  const modelSelectWrapper = document.getElementById("modelSelect");
+  
+  yearSelect.addEventListener("change", function () {
+    modelSelectWrapper.classList.remove("focused");
+    modelSelect.classList.remove("focused-input");
+    
+    let selectedYear = yearSelect.value;
+    let makeOptions = jsonData[selectedYear];
+    
+    makeSelect.removeAttribute("disabled");
+    makeSelect.setAttribute("aria-disabled", "false");
+    
+    modelSelect.removeAttribute("disabled");
+    modelSelect.setAttribute("aria-disabled", "false");
+    
+    makeSelect.innerHTML = '<option value="selectMake"></option>';
+    modelSelect.innerHTML = '<option value="selectModel"></option>';
+    modelSelectWrapper.innerHTML = '';
+    
+    for (let make in makeOptions) {
+      if (makeOptions.hasOwnProperty(make)) {
+        const option = document.createElement("option");
+        option.value = make;
+        option.textContent = make;
+        makeSelect.appendChild(option);
+      }
+    }
+  });
+  
+  makeSelect.addEventListener("change", function () {
+    modelSelectWrapper.classList.remove("focused");
+    modelSelect.classList.remove("focused-input");
+    
+    let selectedYear = yearSelect.value;
+    let selectedMake = makeSelect.value;
+    let modelOptions = jsonData[selectedYear][selectedMake];
+    
+    modelSelect.innerHTML = '<option value="selectModel"></option>';
+    modelSelectWrapper.innerHTML = '';
+    
+    modelOptions.forEach((modelObj) => {
+      const option = document.createElement("option");
+      option.value = modelObj.value;
+      option.textContent = modelObj.text;
+      modelSelect.appendChild(option);
+    });
+  });
+  
+  const reInputs = document.querySelectorAll(".re_input");
+  
+  reInputs.forEach((reInput) => {
+    reInput.addEventListener("click", function () {
+      this.classList.add("selected");
+      const label = this.querySelector("label");
+      const select = this.querySelector("select");
+      label.classList.add("focused");
+      select.classList.add("focused-input");
+    });
+  });
+});
